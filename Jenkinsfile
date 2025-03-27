@@ -10,8 +10,9 @@ pipeline {
         IMAGE_NAME = "java-calculator-app"
         IMAGE_TAG = "${params.VERSION}"
         PORT = "${params.ENVIRONMENT == 'dev' ? '9090' : '9091'}"
-        SONARQUBE_URL = "https://sonarcloud.io/"
+        SONARQUBE_URL = "https://sonarcloud.io"
         ARTIFACTORY_URL = "http://localhost:8082"
+        SONAR_TOKEN = credentials('sonar-token')
     }
     
     stages {
@@ -47,7 +48,7 @@ pipeline {
         stage('SonarQube-Analysis') {
             steps {
                 script {
-                      bat "mvn sonar:sonar -Dsonar.host.url=https://sonarcloud.io -Dsonar.login=c2275d524506c46bd1bc94c76e3674cc402d7668 -Dsonar.organization=kamalkantnimawat -Dsonar.projectKey=CalculatorMvcProject -Dsonar.jacoco.reportPaths=target/site/jacoco/jacoco.xml"
+                      bat "mvn sonar:sonar -Dsonar.host.url=${SONARQUBE_URL} -Dsonar.login=${SONAR_TOKEN} -Dsonar.organization=kamalkantnimawat -Dsonar.projectKey=CalculatorMvcProject -Dsonar.jacoco.reportPaths=target/site/jacoco/jacoco.xml"
                 }
             }
         }
