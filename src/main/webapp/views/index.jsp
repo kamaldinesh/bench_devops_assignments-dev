@@ -3,7 +3,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>DevCalculator</title>
+    <title>ProdCalculator</title>
     <link rel="stylesheet" href="./css/Style.css">
 </head>
 <body>
