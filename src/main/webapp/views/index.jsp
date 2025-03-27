@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="./css/Style.css">
 </head>
 <body>
-    <h2>ProdCalculator</h2>
+    <h2>Production Calculator</h2>
     <form action="calculate" method="post">
         <input type="number" name="num1" placeholder="Enter number 1" required><br><br>
         <input type="number" name="num2" placeholder="Enter number 2" required><br><br>
