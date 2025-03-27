@@ -1,6 +1,6 @@
 # CalculatorMvcProject - DevOps Pipeline
 
-This project implements a CI/CD pipeline to build, test, analyze, and deploy a Maven-based Java web application (CalculatorMvcProject). The pipeline supports two environments (dev and prod), uploads artifacts to Artifactory, builds Docker images, pushes them to Docker Hub, and runs the application in a container.
+This project implements a CI/CD pipeline to build, test, analyze, and deploy a Maven-based Java web application (CalculatorMvcProject). The pipeline supports two environments (dev and prod), uploads artifacts to Artifactory, builds Docker images, pushes them to Docker Hub, and runs the application in a container .
 
 ## Table of Contents
 - [Overview](#overview)
