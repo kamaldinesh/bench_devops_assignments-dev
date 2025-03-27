@@ -1,0 +1,36 @@
+/* Style2.css */
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    display: flex;
+    flex-direction: column; /* Arrange items vertically */
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    margin: 0;
+}
+
+h2 {
+    text-align: center;
+    color: #333;
+}
+
+a {
+    text-decoration: none;
+}
+
+button {
+    background-color: #800080;
+    color: #fff;
+    padding: 15px 30px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 18px;
+    margin-top: 20px; /* Add space between result and button */
+}
+
+button:hover {
+    background-color: #6a006a;
+}
