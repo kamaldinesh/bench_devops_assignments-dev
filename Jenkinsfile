@@ -16,17 +16,15 @@ pipeline {
     
     stages {
         stage('Checkout') {
-              steps {
+            steps {
                 script {
                     if (params.ENVIRONMENT == 'dev') {
                         git branch: 'dev', url: 'https://github.com/kamaldinesh/bench_devops_assignments-dev.git'
-                    }
-                    else
-                    {
-                         git branch: 'prod', url: 'https://github.com/kamaldinesh/bench_devops_assignments-dev.git'
+                    } else {
+                        git branch: 'prod', url: 'https://github.com/kamaldinesh/bench_devops_assignments-dev.git'
                     }
                 }
-              }
+            }
         }
         
         stage('Build-Maven') {
@@ -49,8 +47,14 @@ pipeline {
         stage('SonarQube-Analysis') {
             steps {
                 script {
-bat "mvn sonar:sonar -Dsonar.host.url=https://sonarcloud.io -Dsonar.login=c2275d524506c46bd1bc94c76e3674cc402d7668 -Dsonar.organization=kamalkantnimawat -Dsonar.projectKey=CalculatorMvcProject -Dsonar.jacoco.reportPaths=target/site/jacoco/jacoco.xml"
-    }
+                    bat """
+                        mvn sonar:sonar -Dsonar.host.url=https://sonarcloud.io 
+                        -Dsonar.login=c2275d524506c46bd1bc94c76e3674cc402d7668 
+                        -Dsonar.organization=kamalkantnimawat 
+                        -Dsonar.projectKey=CalculatorMvcProject 
+                        -Dsonar.jacoco.reportPaths=target/site/jacoco/jacoco.xml
+                    """
+                }
             }
         }
         
@@ -71,38 +75,9 @@ bat "mvn sonar:sonar -Dsonar.host.url=https://sonarcloud.io -Dsonar.login=c2275d
             }
         }
         
-        // stage('Build-Docker') {
-        //     steps {
-        //         withCredentials([usernamePassword(credentialsId: 'Artifactory-Auth', usernameVariable: 'ARTIFACTORY_USERNAME', passwordVariable: 'ARTIFACTORY_PASSWORD')]) {
-        //             sh "docker build --build-arg ARTIFACTORY_USERNAME=\${ARTIFACTORY_USERNAME} --build-arg ARTIFACTORY_PASSWORD=\${ARTIFACTORY_PASSWORD} --build-arg ARTIFACTORY_URL=${ARTIFACTORY_URL}/artifactory --build-arg ENVIRONMENT=${params.ENVIRONMENT} -t ${IMAGE_NAME}:${IMAGE_TAG} ."
-        //         }
-        //     }
-        // }
-        
-        // stage('Docker-Push') {
-        //     steps {
-        //         script {
-        //             docker.withRegistry('https://index.docker.io/v1/', 'docker-login') {
-        //                 docker.image("${IMAGE_NAME}:${IMAGE_TAG}").push()
-        //             }
-        //         }
-        //     }
-        // }
-        
-        // stage('Run-container') {
-        //     steps {
-        //         script {
-        //             sh "docker stop endpointapi-${params.ENVIRONMENT} || true"
-        //             sh "docker rm endpointapi-${params.ENVIRONMENT} || true"
-        //             sh "docker run -d --name endpointapi-${params.ENVIRONMENT} -p ${PORT}:8080 ${IMAGE_NAME}:${IMAGE_TAG}"
-        //         }
-        //     }
-        // }
-        
-         stage('Build Docker Image') {
+        stage('Build Docker Image') {
             steps {
                 script {
-                    
                     // Build Docker image
                     bat "docker build -t ${IMAGE_NAME}-${params.ENVIRONMENT}:${IMAGE_TAG} ."
                 }
@@ -116,12 +91,68 @@ bat "mvn sonar:sonar -Dsonar.host.url=https://sonarcloud.io -Dsonar.login=c2275d
                     if (containerId) {
                         bat "docker rm -f ${containerId}"
                     }
-
-                    // def port = (params.Environment == 'dev') ? '9090' : '9091'
                     bat "docker run -d -p ${PORT}:${PORT} --name ${IMAGE_NAME}-${params.ENVIRONMENT} ${IMAGE_NAME}-${params.ENVIRONMENT}:${IMAGE_TAG}"
                 }
             }
         }
 
     }
+    
+    post {
+        success {
+            echo "Build and Deployment Successful"
+            script {
+                try {
+                    emailext(
+                        to: 'kamalkantnimawat28@gmail.com',
+                        subject: "Build Successful - ${env.JOB_NAME} - ${env.BUILD_NUMBER}",
+                        body: """
+                        <html>
+                        <body style="font-family: Arial, sans-serif; background-color: #e6f7e1; color: #333333; padding: 20px;">
+                            <h2 style="color: #4CAF50; text-align: center;">Build Successful</h2>
+                            <p style="font-size: 16px;">The build <strong>${env.JOB_NAME} - ${env.BUILD_NUMBER}</strong> was successful.</p>
+                            <p style="font-size: 16px;">You can view the results and the details of this build at the following link:</p>
+                            <p style="font-size: 16px;">
+                                <a href="${env.BUILD_URL}" style="color: #4CAF50; text-decoration: none;">View Build</a>
+                            </p>
+                        </body>
+                        </html>
+                        """,
+                        mimeType: 'text/html'
+                    )
+                } catch (Exception e) {
+                    echo "Failed to send email: ${e.message}"
+                }
+            }
+        }
+        
+        failure {
+            echo "Build or Deployment Failed"
+            script {
+                try {
+                    emailext(
+                        to: 'kamalkantnimawat28@gmail.com',
+                        subject: "Build Failed - ${env.JOB_NAME} - ${env.BUILD_NUMBER}",
+                        body: """
+                        <html>
+                        <body style="font-family: Arial, sans-serif; background-color: #f8d7da; color: #721c24; padding: 20px;">
+                            <h2 style="color: #721c24; text-align: center;">Build Failed</h2>
+                            <p style="font-size: 16px;">The build <strong>${env.JOB_NAME} - ${env.BUILD_NUMBER}</strong> has failed.</p>
+                            <p style="font-size: 16px;">Unfortunately, the build did not complete successfully. Please review the details and logs:</p>
+                            <p style="font-size: 16px;">
+                                <a href="${env.BUILD_URL}" style="color: #721c24; text-decoration: none;">View Build Logs</a>
+                            </p>
+                        </body>
+                        </html>
+                        """,
+                        mimeType: 'text/html'
+                    )
+                } catch (Exception e) {
+                    echo "Failed to send email: ${e.message}"
+                }
+            }
+        }
+    }
+}
+
 }
