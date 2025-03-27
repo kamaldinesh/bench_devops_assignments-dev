@@ -3,38 +3,39 @@ pipeline {
     
     parameters {
         choice(name: 'ENVIRONMENT', choices: ['dev', 'prod'], description: 'Select the environment to deploy to')
-        string(name: 'WSL_IP', defaultValue: '', description: 'Enter the WSL IP address (e.g., 172.17.0.1)')
         string(name: 'VERSION', defaultValue: '1.0', description: 'Enter the version tag for the Docker image (e.g., 1.2)')
     }
     
     environment {
-        IMAGE_NAME = "dpcode72/${params.ENVIRONMENT}-${BUILD_NUMBER}"
+        IMAGE_NAME = "java-calculator-app"
         IMAGE_TAG = "${params.VERSION}"
-        PORT = "${params.ENVIRONMENT == 'dev' ? '8000' : '8086'}"
-        APP_URL = "http://${params.WSL_IP}:${PORT}"
-        SONARQUBE_URL = "http://${params.WSL_IP}:9000"
-        ARTIFACTORY_URL = "http://${params.WSL_IP}:8081"
+        PORT = "${params.ENVIRONMENT == 'dev' ? '9090' : '9091'}"
+        SONARQUBE_URL = "https://sonarcloud.io/"
+        ARTIFACTORY_URL = "http://localhost:8082"
     }
     
     stages {
         stage('Checkout') {
             steps {
-                checkout([$class: 'GitSCM', 
-                          branches: [[name: "*/${params.ENVIRONMENT}"]], 
-                          userRemoteConfigs: [[url: 'https://gitlab.com/nagarro-devops1/bench_devops_assignments.git', 
-                                              credentialsId: 'Gitlab-Access-1']]])
+                script {
+                    if (params.ENVIRONMENT == 'dev') {
+                        git branch: 'dev', url: 'https://github.com/kamaldinesh/bench_devops_assignments-dev.git'
+                    } else {
+                        git branch: 'prod', url: 'https://github.com/kamaldinesh/bench_devops_assignments-dev.git'
+                    }
+                }
             }
         }
         
         stage('Build-Maven') {
             steps {
-                sh 'mvn clean package'
+                bat 'mvn clean package'
             }
         }
         
         stage('Unit-Test') {
             steps {
-                sh 'mvn test'
+                bat 'mvn test'
             }
             post {
                 always {
@@ -46,10 +47,7 @@ pipeline {
         stage('SonarQube-Analysis') {
             steps {
                 script {
-                    echo "Running SonarQube analysis with URL: ${SONARQUBE_URL}"
-                    withSonarQubeEnv(credentialsId: 'sonarqube-token', installationName: 'SonarQube') {
-                        sh 'mvn sonar:sonar -Dsonar.host.url=${SONARQUBE_URL} -Dsonar.login=$SONAR_TOKEN'
-                    }
+                      bat "mvn sonar:sonar -Dsonar.host.url=https://sonarcloud.io -Dsonar.login=c2275d524506c46bd1bc94c76e3674cc402d7668 -Dsonar.organization=kamalkantnimawat -Dsonar.jacoco.reportPaths=target/site/jacoco/jacoco.xml"
                 }
             }
         }
@@ -61,54 +59,94 @@ pipeline {
                         "files": [
                             {
                                 "pattern": "target/*.war",
-                                "target": "java-nagarro-assignment/binaries/${params.ENVIRONMENT}/"
+                                "target": "java-calculator-app-artifactory/binaries/${params.ENVIRONMENT}/"
                             }
                         ]
                     }"""
-                    rtUpload serverId: 'artifactory-server', spec: uploadSpec
-                    rtPublishBuildInfo serverId: 'artifactory-server'
+                    rtUpload serverId: 'Artifactory', spec: uploadSpec
+                    rtPublishBuildInfo serverId: 'Artifactory'
                 }
             }
         }
         
-        stage('Build-Docker') {
-            steps {
-                withCredentials([usernamePassword(credentialsId: 'Artifactory-Auth', usernameVariable: 'ARTIFACTORY_USERNAME', passwordVariable: 'ARTIFACTORY_PASSWORD')]) {
-                    sh "docker build --build-arg ARTIFACTORY_USERNAME=\${ARTIFACTORY_USERNAME} --build-arg ARTIFACTORY_PASSWORD=\${ARTIFACTORY_PASSWORD} --build-arg ARTIFACTORY_URL=${ARTIFACTORY_URL}/artifactory --build-arg ENVIRONMENT=${params.ENVIRONMENT} -t ${IMAGE_NAME}:${IMAGE_TAG} ."
-                }
-            }
-        }
-        
-        stage('Docker-Push') {
+        stage('Build Docker Image') {
             steps {
                 script {
-                    docker.withRegistry('https://index.docker.io/v1/', 'docker-login') {
-                        docker.image("${IMAGE_NAME}:${IMAGE_TAG}").push()
+                    // Build Docker image
+                    bat "docker build -t ${IMAGE_NAME}-${params.ENVIRONMENT}:${IMAGE_TAG} ."
+                }
+            }
+        }
+
+        stage('Deploy Docker Container') {
+            steps {
+                script {
+                    def containerId = powershell(script: "docker ps -q --filter name=${IMAGE_NAME}-${params.ENVIRONMENT}", returnStdout: true).trim()
+                    if (containerId) {
+                        bat "docker rm -f ${containerId}"
                     }
+                    bat "docker run -d -p ${PORT}:${PORT} --name ${IMAGE_NAME}-${params.ENVIRONMENT} ${IMAGE_NAME}-${params.ENVIRONMENT}:${IMAGE_TAG}"
+                }
+            }
+        }
+
+    }
+    
+    post {
+        success {
+            echo "Build and Deployment Successful"
+            script {
+                try {
+                    emailext(
+                        to: 'kamalkantnimawat28@gmail.com',
+                        subject: "Build Successful - ${env.JOB_NAME} - ${env.BUILD_NUMBER}",
+                        body: """
+                        <html>
+                        <body style="font-family: Arial, sans-serif; background-color: #e6f7e1; color: #333333; padding: 20px;">
+                            <h2 style="color: #4CAF50; text-align: center;">Build Successful</h2>
+                            <p style="font-size: 16px;">The build <strong>${env.JOB_NAME} - ${env.BUILD_NUMBER}</strong> was successful.</p>
+                            <p style="font-size: 16px;">You can view the results and the details of this build at the following link:</p>
+                            <p style="font-size: 16px;">
+                                <a href="${env.BUILD_URL}" style="color: #4CAF50; text-decoration: none;">View Build</a>
+                            </p>
+                        </body>
+                        </html>
+                        """,
+                        mimeType: 'text/html'
+                    )
+                } catch (Exception e) {
+                    echo "Failed to send email: ${e.message}"
                 }
             }
         }
         
-        stage('Run-container') {
-            steps {
-                script {
-                    sh "docker stop endpointapi-${params.ENVIRONMENT} || true"
-                    sh "docker rm endpointapi-${params.ENVIRONMENT} || true"
-                    sh "docker run -d --name endpointapi-${params.ENVIRONMENT} -p ${PORT}:8080 ${IMAGE_NAME}:${IMAGE_TAG}"
-                }
-            }
-        }
-        
-        stage('Provide-URL') {
-            steps {
-                script {
-                    if (params.ENVIRONMENT == 'dev') {
-                        echo "Dev URL: ${APP_URL}"
-                    } else {
-                        echo "Prod URL: ${APP_URL}"
-                    }
+        failure {
+            echo "Build or Deployment Failed"
+            script {
+                try {
+                    emailext(
+                        to: 'kamalkantnimawat28@gmail.com',
+                        subject: "Build Failed - ${env.JOB_NAME} - ${env.BUILD_NUMBER}",
+                        body: """
+                        <html>
+                        <body style="font-family: Arial, sans-serif; background-color: #f8d7da; color: #721c24; padding: 20px;">
+                            <h2 style="color: #721c24; text-align: center;">Build Failed</h2>
+                            <p style="font-size: 16px;">The build <strong>${env.JOB_NAME} - ${env.BUILD_NUMBER}</strong> has failed.</p>
+                            <p style="font-size: 16px;">Unfortunately, the build did not complete successfully. Please review the details and logs:</p>
+                            <p style="font-size: 16px;">
+                                <a href="${env.BUILD_URL}" style="color: #721c24; text-decoration: none;">View Build Logs</a>
+                            </p>
+                        </body>
+                        </html>
+                        """,
+                        mimeType: 'text/html'
+                    )
+                } catch (Exception e) {
+                    echo "Failed to send email: ${e.message}"
                 }
             }
         }
     }
+}
+
 }
