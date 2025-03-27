@@ -47,7 +47,7 @@ pipeline {
         stage('SonarQube-Analysis') {
             steps {
                 script {
-                      bat "mvn sonar:sonar -Dsonar.host.url=https://sonarcloud.io -Dsonar.login=c2275d524506c46bd1bc94c76e3674cc402d7668 -Dsonar.organization=kamalkantnimawat -Dsonar.jacoco.reportPaths=target/site/jacoco/jacoco.xml"
+                      bat "mvn sonar:sonar -Dsonar.host.url=https://sonarcloud.io -Dsonar.login=c2275d524506c46bd1bc94c76e3674cc402d7668 -Dsonar.organization=kamalkantnimawat -Dsonar.projectKey=CalculatorMvcProject -Dsonar.jacoco.reportPaths=target/site/jacoco/jacoco.xml"
                 }
             }
         }
@@ -147,6 +147,4 @@ pipeline {
             }
         }
     }
-}
-
 }
