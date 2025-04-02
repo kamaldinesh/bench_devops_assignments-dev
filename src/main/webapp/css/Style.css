@@ -2,9 +2,13 @@
 
 /* Style.css - Development Environment */
 
+@charset "ISO-8859-1";
+
+/* Style.css - Development Environment */
+
 body {
     font-family: Arial, sans-serif;
-    background-color: #e0f7fa; /* Light cyan for dev distinction */
+    background-color: #31EC56; /* Malachite green background */
     margin: 0;
     padding: 0;
 }
@@ -12,7 +16,7 @@ body {
 h2 {
     text-align: center;
     margin-top: 20px;
-    color: #0277bd; /* Darker blue for dev */
+    color: #EF036C; /* Razzmatazz for heading */
 }
 
 form {
@@ -22,17 +26,17 @@ form {
     padding: 20px;
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    border: 2px dashed #0288d1; /* Dashed border to scream "dev" */
+    border: 2px dashed #31EC56; /* Malachite green dashed border */
 }
 
 input[type="number"] {
     width: 100%;
     padding: 10px;
     margin-bottom: 10px;
-    border: 1px solid #0288d1; /* Blue border for dev */
+    border: 1px solid #31EC56; /* Malachite green border */
     border-radius: 4px;
     box-sizing: border-box;
-    background-color: #e1f5fe; /* Light blue input background */
+    background-color: #EE72F8; /* Heliotrope background color for input */
 }
 
 button {
@@ -42,12 +46,12 @@ button {
     margin-bottom: 10px;
     border: none;
     border-radius: 4px;
-    background-color: #0288d1; /* Bright blue for dev buttons */
+    background-color: #31EC56; /* Malachite green for button */
     color: #fff;
     cursor: pointer;
     transition: background-color 0.3s;
 }
 
 button:hover {
-    background-color: #0277bd; /* Darker blue on hover */
+    background-color: #EF036C; /* Razzmatazz on hover */
 }
