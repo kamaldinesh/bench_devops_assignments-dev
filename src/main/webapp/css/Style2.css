@@ -1,8 +1,10 @@
 /* Style2.css */
 
+/* Style2.css */
+
 body {
     font-family: Arial, sans-serif;
-    background-color: #f4f4f4;
+    background-color: #31EC56; /* Malachite green background */
     display: flex;
     flex-direction: column; /* Arrange items vertically */
     align-items: center;
@@ -13,7 +15,7 @@ body {
 
 h2 {
     text-align: center;
-    color: #333;
+    color: #EF036C; /* Razzmatazz color for the heading */
 }
 
 a {
@@ -21,7 +23,7 @@ a {
 }
 
 button {
-    background-color: #800080;
+    background-color: #31EC56; /* Malachite green for the button */
     color: #fff;
     padding: 15px 30px;
     border: none;
@@ -32,5 +34,6 @@ button {
 }
 
 button:hover {
-    background-color: #6a006a;
+    background-color: #EF036C; /* Razzmatazz on hover */
 }
+
