@@ -30,13 +30,13 @@ pipeline {
         
         stage('Build-Maven') {
             steps {
-                bat 'mvn clean package'
+                sh 'mvn clean package'
             }
         }
         
         stage('Unit-Test') {
             steps {
-                bat 'mvn test'
+                sh 'mvn test'
             }
             post {
                 always {
@@ -48,7 +48,7 @@ pipeline {
         stage('SonarQube-Analysis') {
             steps {
                 script {
-                      bat "mvn sonar:sonar -Dsonar.host.url=${SONARQUBE_URL} -Dsonar.login=${SONAR_TOKEN} -Dsonar.organization=kamalkantnimawat -Dsonar.projectKey=CalculatorMvcProject -Dsonar.jacoco.reportPaths=target/site/jacoco/jacoco.xml"
+                      sh "mvn sonar:sonar -Dsonar.host.url=${SONARQUBE_URL} -Dsonar.login=${SONAR_TOKEN} -Dsonar.organization=kamalkantnimawat -Dsonar.projectKey=CalculatorMvcProject -Dsonar.jacoco.reportPaths=target/site/jacoco/jacoco.xml"
                 }
             }
         }
@@ -74,7 +74,7 @@ pipeline {
             steps {
                 script {
                     // Build Docker image
-                    bat "docker build -t ${IMAGE_NAME}-${params.ENVIRONMENT}:${IMAGE_TAG} ."
+                    sh "docker build -t ${IMAGE_NAME}-${params.ENVIRONMENT}:${IMAGE_TAG} ."
                 }
             }
         }
@@ -84,9 +84,9 @@ pipeline {
                 script {
                     def containerId = powershell(script: "docker ps -q --filter name=${IMAGE_NAME}-${params.ENVIRONMENT}", returnStdout: true).trim()
                     if (containerId) {
-                        bat "docker rm -f ${containerId}"
+                        sh "docker rm -f ${containerId}"
                     }
-                    bat "docker run -d -p ${PORT}:${PORT} --name ${IMAGE_NAME}-${params.ENVIRONMENT} ${IMAGE_NAME}-${params.ENVIRONMENT}:${IMAGE_TAG}"
+                    sh "docker run -d -p ${PORT}:${PORT} --name ${IMAGE_NAME}-${params.ENVIRONMENT} ${IMAGE_NAME}-${params.ENVIRONMENT}:${IMAGE_TAG}"
                 }
             }
         }
