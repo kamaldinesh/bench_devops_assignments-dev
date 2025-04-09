@@ -1,98 +1,122 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
-	<modelVersion>4.0.0</modelVersion>
-	<parent>
-		<groupId>org.springframework.boot</groupId>
-		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.2.4</version>
-		<relativePath/> <!-- lookup parent from repository -->
-	</parent>
-	<packaging>war</packaging>
-	<groupId>com.nagarro</groupId>
-	<artifactId>CalculatorMvcProject</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
-	<name>CalculatorMvcProject</name>
-	<description>Demo project for Spring Boot</description>
-	<properties>
-		<java.version>17</java.version>
-	</properties>
-	<dependencies>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-web</artifactId>
-		</dependency>
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    
+    <!-- Parent POM for Spring Boot -->
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>2.7.6</version> <!-- Updated to a stable version -->
+        <relativePath/> <!-- lookup parent from repository -->
+    </parent>
 
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-test</artifactId>
-			<scope>test</scope>
-		</dependency>
-		
-		<!-- https://mvnrepository.com/artifact/org.apache.tomcat/tomcat-jasper -->
-		<dependency>
-		    <groupId>org.apache.tomcat</groupId>
-		    <artifactId>tomcat-jasper</artifactId>
-		    <version>10.1.19</version>
-		    <scope>compile</scope>
-		</dependency>
-		
-		<dependency>
-		   <groupId>org.springframework.boot</groupId>
-		   <artifactId>spring-boot-starter-tomcat</artifactId>
-		   <scope>provided</scope>
-		</dependency>
-		
-		<dependency>
-	      <groupId>javax.servlet</groupId>
-	      <artifactId>javax.servlet-api</artifactId>
-	      <version>3.1.0</version>
-	      <scope>provided</scope>
-	  </dependency>
-	</dependencies>
+    <!-- Packaging as WAR file -->
+    <packaging>war</packaging>
 
-	<build>
-		<finalName>${project.artifactId}</finalName>
-		<plugins>
-			<plugin>
-				<groupId>org.springframework.boot</groupId>
-				<artifactId>spring-boot-maven-plugin</artifactId>
-			</plugin>
-			<plugin>
-				<groupId>org.springframework.boot</groupId>
-				<artifactId>spring-boot-maven-plugin</artifactId>
-			</plugin>
-			<plugin>
-				<groupId>org.jacoco</groupId>
-				<artifactId>jacoco-maven-plugin</artifactId>
-				<version>0.8.7</version>
-				<executions>
-					<execution>
-						<id>prepare-agent</id>
-						<goals>
-							<goal>prepare-agent</goal>
-						</goals>
-					</execution>
-					<execution>
-						<id>report</id>
-						<phase>prepare-package</phase>
-						<goals>
-							<goal>report</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
-			<plugin>
-    			<groupId>org.apache.maven.plugins</groupId>
-    			<artifactId>maven-surefire-plugin</artifactId>
-    			
-    			<configuration>
-					<reportsDirectory>
-				${project.basedir}/target/surefire-reports</reportsDirectory>
-    			</configuration>
-			</plugin>
+    <groupId>com.nagarro</groupId>
+    <artifactId>CalculatorMvcProject</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <name>CalculatorMvcProject</name>
+    <description>Demo project for Spring Boot</description>
 
-		</plugins>
-	</build>
+    <properties>
+        <java.version>17</java.version>
+    </properties>
 
+    <dependencies>
+        <!-- Spring Boot Web Dependency for creating web apps -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+
+        <!-- Spring Boot Test Dependency for unit testing -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- Tomcat Jasper for JSP Compilation -->
+        <dependency>
+            <groupId>org.apache.tomcat</groupId>
+            <artifactId>tomcat-jasper</artifactId>
+            <version>10.1.19</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <!-- Spring Boot Starter Tomcat (provided scope for deployment) -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-tomcat</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- Java Servlet API for Tomcat compatibility -->
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
+            <version>3.1.0</version>
+            <scope>provided</scope>
+        </dependency>
+
+    </dependencies>
+
+    <build>
+        <finalName>${project.artifactId}</finalName> <!-- WAR file name -->
+
+        <plugins>
+            <!-- Spring Boot Maven Plugin for building Spring Boot projects -->
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+
+            <!-- Jacoco Maven Plugin for code coverage -->
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>0.8.7</version>
+                <executions>
+                    <execution>
+                        <id>prepare-agent</id>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>report</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- Maven Surefire Plugin for unit testing -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <reportsDirectory>${project.basedir}/target/surefire-reports</reportsDirectory>
+                </configuration>
+            </plugin>
+
+            <!-- Optional: Use Tomcat Plugin if you want to deploy locally -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>tomcat7-maven-plugin</artifactId>
+                <version>2.2</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>deploy</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 </project>
