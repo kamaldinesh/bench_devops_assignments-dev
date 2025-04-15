@@ -3,7 +3,7 @@ pipeline {
     
     parameters {
         choice(name: 'ENVIRONMENT', choices: ['dev', 'prod'], description: 'Select the environment to deploy to')
-        string(name: 'VERSION', defaultValue: '1.0', description: 'Enter the version tag for the Docker image (e.g., 1.2)')
+        string(name: 'VERSION', defaultValue: '1.0', description: 'Enter the version tag for the Docker image (e.g., 1.1)')
     }
     
     environment {
